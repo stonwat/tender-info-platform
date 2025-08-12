@@ -3,7 +3,7 @@ package com.vonader.tender_info_platform.controller;
 import com.vonader.tender_info_platform.domain.ServiceMartTender;
 import com.vonader.tender_info_platform.domain.ProjectPurchaseTender;
 import com.vonader.tender_info_platform.service.ServiceMartTenderService;
-import com.vonader.tender_info_platform.service.TenderService;
+import com.vonader.tender_info_platform.service.ProjectPurchaseTenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
@@ -20,18 +20,18 @@ import org.springframework.web.server.ResponseStatusException;
 public class TenderController {
 
     // 项目采购服务
-    private final TenderService tenderService;
+    private final ProjectPurchaseTenderService tenderService;
     // 服务工程服务
     private final ServiceMartTenderService serviceMartTenderService;
 
     @Autowired
-    public TenderController(TenderService tenderService,
+    public TenderController(ProjectPurchaseTenderService tenderService,
                             ServiceMartTenderService serviceMartTenderService) {
         this.tenderService = tenderService;
         this.serviceMartTenderService = serviceMartTenderService;
     }
 
-    // ========== 项目采购接口 ==========
+    // ========== 项目采购列表 ==========
     @GetMapping("/project")
     public Page<ProjectPurchaseTender> getFilteredTenders(
             @RequestParam(value = "region", required = false) String region,
