@@ -19,15 +19,15 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = "*") // 允许跨域
 public class TenderController {
 
-    // 项目采购服务
-    private final ProjectPurchaseTenderService tenderService;
-    // 服务工程服务
+    // ========== 项目采购服务 ==========
+    private final ProjectPurchaseTenderService projectPurchaseTenderService;
+    // ========== 服务工程服务 ==========
     private final ServiceMartTenderService serviceMartTenderService;
 
     @Autowired
-    public TenderController(ProjectPurchaseTenderService tenderService,
+    public TenderController(ProjectPurchaseTenderService projectPurchaseTenderService,
                             ServiceMartTenderService serviceMartTenderService) {
-        this.tenderService = tenderService;
+        this.projectPurchaseTenderService = projectPurchaseTenderService;
         this.serviceMartTenderService = serviceMartTenderService;
     }
 
@@ -41,12 +41,12 @@ public class TenderController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        return tenderService.getFilteredTenders(region, keyword, date, pageable);
+        return projectPurchaseTenderService.getFilteredTenders(region, keyword, date, pageable);
     }
 
     @GetMapping("/project/detail")
     public ProjectPurchaseTender getTenderDetailByUrl(@RequestParam("url") String url) {
-        ProjectPurchaseTender tender = tenderService.getTenderByUrl(url);
+        ProjectPurchaseTender tender = projectPurchaseTenderService.getTenderByUrl(url);
         if (tender == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "未找到项目采购信息");
         }

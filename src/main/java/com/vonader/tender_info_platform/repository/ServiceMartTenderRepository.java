@@ -14,9 +14,8 @@ import java.util.Optional;
 public interface ServiceMartTenderRepository extends JpaRepository<ServiceMartTender, String> {
     // 主键是 String 类型的 url
 
-    /**
-     * 过滤查询：支持按地区、关键词、日期筛选
-     */
+    // 过滤查询：支持按地区、关键词、日期筛选
+
     @Query("SELECT s FROM ServiceMartTender s WHERE " +
             "(:region IS NULL OR s.region = :region) AND " +
             "(:keyword IS NULL OR s.title LIKE %:keyword%) AND " +
@@ -27,8 +26,6 @@ public interface ServiceMartTenderRepository extends JpaRepository<ServiceMartTe
             @Param("date") String date,
             Pageable pageable);
 
-    /**
-     * 按 url 查询详情
-     */
+    // 按 url 查询详情
     Optional<ServiceMartTender> findByUrl(String url);
 }
