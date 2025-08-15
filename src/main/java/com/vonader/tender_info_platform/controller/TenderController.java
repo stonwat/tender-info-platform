@@ -1,10 +1,9 @@
 package com.vonader.tender_info_platform.controller;
 
 import com.vonader.tender_info_platform.domain.ProjectPurchase;
+import com.vonader.tender_info_platform.domain.ServiceMart;
 import com.vonader.tender_info_platform.service.TenderService;
 
-import com.vonader.tender_info_platform.domain.ServiceMartTender;
-import com.vonader.tender_info_platform.service.ServiceMartTenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
@@ -20,16 +19,13 @@ import org.springframework.web.server.ResponseStatusException;
 @CrossOrigin(origins = "*") // 允许跨域
 public class TenderController {
 
-    // ========== 项目采购服务 ==========
+    
     private final TenderService tenderService;
-    // ========== 服务工程服务 ==========
-    private final ServiceMartTenderService serviceMartTenderService;
 
+    // ========== 项目采购服务 ==========
     @Autowired
-    public TenderController(TenderService tenderService,
-                            ServiceMartTenderService serviceMartTenderService) {
+    public TenderController(TenderService tenderService) {
         this.tenderService = tenderService;
-        this.serviceMartTenderService = serviceMartTenderService;
     }
 
     // ========== 项目采购列表 ==========
@@ -56,7 +52,7 @@ public class TenderController {
 
     // ========== 服务工程接口 ==========
     @GetMapping("/service")
-    public Page<ServiceMartTender> getFilteredServiceEngineeringTenders(
+    public Page<ServiceMart> getFilteredServiceEngineeringTenders(
             @RequestParam(value = "region", required = false) String region,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "date", required = false) String date,
@@ -64,14 +60,14 @@ public class TenderController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        return serviceMartTenderService.getFilteredServiceMartTenders(
+        return tenderService.getFilteredServiceMart(
                 region, keyword, date, pageable
         );
     }
 
     @GetMapping("/service/detail")
-    public ServiceMartTender getServiceMartTenderDetailByUrl(@RequestParam("url") String url) {
-        ServiceMartTender tender = serviceMartTenderService.getServiceMartTenderByUrl(url);
+    public ServiceMart getServiceMartTenderDetailByUrl(@RequestParam("url") String url) {
+        ServiceMart tender = tenderService.getServiceMartTenderByUrl(url);
         if (tender == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "未找到服务工程信息");
         }
