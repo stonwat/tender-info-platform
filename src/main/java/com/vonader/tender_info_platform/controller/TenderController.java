@@ -1,9 +1,10 @@
 package com.vonader.tender_info_platform.controller;
 
+import com.vonader.tender_info_platform.domain.ProjectPurchase;
+import com.vonader.tender_info_platform.service.TenderService;
+
 import com.vonader.tender_info_platform.domain.ServiceMartTender;
-import com.vonader.tender_info_platform.domain.ProjectPurchaseTender;
 import com.vonader.tender_info_platform.service.ServiceMartTenderService;
-import com.vonader.tender_info_platform.service.ProjectPurchaseTenderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
@@ -15,25 +16,25 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Configuration
 @RestController
-@RequestMapping("/api/tenders")
+@RequestMapping("/tender-info-platform-api/tenders")
 @CrossOrigin(origins = "*") // 允许跨域
 public class TenderController {
 
     // ========== 项目采购服务 ==========
-    private final ProjectPurchaseTenderService projectPurchaseTenderService;
+    private final TenderService tenderService;
     // ========== 服务工程服务 ==========
     private final ServiceMartTenderService serviceMartTenderService;
 
     @Autowired
-    public TenderController(ProjectPurchaseTenderService projectPurchaseTenderService,
+    public TenderController(TenderService tenderService,
                             ServiceMartTenderService serviceMartTenderService) {
-        this.projectPurchaseTenderService = projectPurchaseTenderService;
+        this.tenderService = tenderService;
         this.serviceMartTenderService = serviceMartTenderService;
     }
 
     // ========== 项目采购列表 ==========
     @GetMapping("/project")
-    public Page<ProjectPurchaseTender> getFilteredTenders(
+    public Page<ProjectPurchase> getFilteredProjectPurchase(
             @RequestParam(value = "region", required = false) String region,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "date", required = false) String date,
@@ -41,16 +42,16 @@ public class TenderController {
             @RequestParam(value = "size", defaultValue = "10") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
-        return projectPurchaseTenderService.getFilteredTenders(region, keyword, date, pageable);
+        return tenderService.getFilteredProjectPurchase(region, keyword, date, pageable);
     }
 
     @GetMapping("/project/detail")
-    public ProjectPurchaseTender getTenderDetailByUrl(@RequestParam("url") String url) {
-        ProjectPurchaseTender tender = projectPurchaseTenderService.getTenderByUrl(url);
-        if (tender == null) {
+    public ProjectPurchase getProjectPurchaseDetailByUrl(@RequestParam("url") String url) {
+        ProjectPurchase projectPurchase = tenderService.getProjectPurchaseDetailByUrl(url);
+        if (projectPurchase == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "未找到项目采购信息");
         }
-        return tender;
+        return projectPurchase;
     }
 
     // ========== 服务工程接口 ==========

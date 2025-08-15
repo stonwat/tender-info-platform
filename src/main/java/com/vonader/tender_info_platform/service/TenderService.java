@@ -1,24 +1,25 @@
 package com.vonader.tender_info_platform.service;
 
-import com.vonader.tender_info_platform.domain.ProjectPurchaseTender;
-import com.vonader.tender_info_platform.repository.ProjectPurchaseTenderRepository;
+import com.vonader.tender_info_platform.domain.ProjectPurchase;
+import com.vonader.tender_info_platform.repository.TenderRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 
 @Service
-public class ProjectPurchaseTenderService {
+public class TenderService {
 
-    private final ProjectPurchaseTenderRepository tenderRepository;
+    private final TenderRepository tenderRepository;
 
     @Autowired
-    public ProjectPurchaseTenderService(ProjectPurchaseTenderRepository tenderRepository) {
+    public TenderService(TenderRepository tenderRepository) {
         this.tenderRepository = tenderRepository;
     }
 
-    public Page<ProjectPurchaseTender> getFilteredTenders(
+    public Page<ProjectPurchase> getFilteredProjectPurchase(
             String region,
             String keyword,
             String date,
@@ -29,7 +30,7 @@ public class ProjectPurchaseTenderService {
         keyword = "".equals(keyword) ? null : keyword;
         date = "".equals(date) ? null : date;
 
-        return tenderRepository.findFilteredTenders(
+        return tenderRepository.findFilteredProjectPurchase(
                 region,
                 keyword,
                 date,
@@ -38,9 +39,9 @@ public class ProjectPurchaseTenderService {
     }
 
     // 根据url查询
-    public ProjectPurchaseTender getTenderByUrl(String url) {
+    public ProjectPurchase getProjectPurchaseDetailByUrl(String url) {
         // 调用Repository方法（需在Repository中定义）
-        return tenderRepository.findByUrl(url)
+        return tenderRepository.findProjectPurchaseDetailByUrl(url)
                 .orElse(null); // 未找到返回null
     }
 

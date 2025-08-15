@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "project_purchase")
-public class ProjectPurchaseTender {
+public class ProjectPurchase {
 
     @Id
     @Column(name = "url", length = 255, nullable = false)
@@ -19,7 +19,7 @@ public class ProjectPurchaseTender {
     @Column(name = "end_time", length = 255)
     private String endTime;
 
-    @Column(name = "matter", length = 255)
+    @Column(name = "matter", length = 1024)
     private String matter;
 
     @Column(name = "title", length = 255)
@@ -34,11 +34,14 @@ public class ProjectPurchaseTender {
     @Column(name = "region", length = 255)
     private String region;
 
-    @Column(name = "llm", length = 2048)
+    @Column(name = "llm", length = 3072)
     private String llm;
 
     @Column(name = "date")
     private String date;
+
+    @Column(name = "county", length = 255) //
+    private String county;
 
     // Getters and setters
     public String getUrl() { return url; }
@@ -73,4 +76,7 @@ public class ProjectPurchaseTender {
 
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
+
+    public String getCounty() { return county; }
+    public void setCounty(String county) { this.county = county; }
 }
