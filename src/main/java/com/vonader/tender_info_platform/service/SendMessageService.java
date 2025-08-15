@@ -1,6 +1,7 @@
 package com.vonader.tender_info_platform.service;
 
 import com.vonader.tender_info_platform.domain.Contact;
+import com.vonader.tender_info_platform.domain.Config;
 import com.vonader.tender_info_platform.repository.SendMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,14 @@ public class SendMessageService {
         this.sendMessageRepository = sendMessageRepository;
     }
 
-    // 调用Repository的findAll方法，实现分页查询
-    public Page<Contact> findAllContacts(Pageable pageable) {
-        // 可以在这里添加业务逻辑（如参数校验、权限控制等）
+    // 查询发送邮箱配置
+    public List<Config> getConfig() {
+        // 调用Repository层的分页查询发送邮箱配置
+        return sendMessageRepository.findConfig();
+    }
+
+    // 分页查询联系人邮箱列表
+    public Page<Contact> getAllContacts(Pageable pageable) {
         if (pageable == null) {
             throw new IllegalArgumentException("分页参数不能为空");
         }

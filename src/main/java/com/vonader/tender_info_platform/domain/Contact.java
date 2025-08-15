@@ -7,13 +7,13 @@ import jakarta.persistence.*;
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "Userid")
+    @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "Username", length = 100, nullable = true )
+    @Column(name = "user_name", length = 100, nullable = true )
     private String userName;
 
-    @Column(name = "Email", length = 100, unique = true, nullable = false )
+    @Column(name = "email", length = 100, unique = true, nullable = false )
     private String email;
 
     @Column(name = "remarks", length = 100)

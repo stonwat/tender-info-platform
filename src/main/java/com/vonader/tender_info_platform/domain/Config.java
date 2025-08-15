@@ -1,51 +1,106 @@
 package com.vonader.tender_info_platform.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
+/**
+ * 系统配置实体类，映射数据库config表
+ * 存储邮件发送相关配置参数，支持系统邮件服务的动态配置
+ */
 @Entity
 @Table(name = "config")
 public class Config {
-    // 对应表中的 ID 字段，自增主键
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
+    @Column(name = "id")
     private Integer id;
 
-    // 对应表中的 ParamName 字段，长度 100，允许为空
-    @Column(name = "ParamName", length = 100, nullable = true)
-    private String paramName;
+    /**
+     * 发送邮箱地址
+     * 用于系统发送通知、验证码等邮件的发件人账号
+     */
+    @Column(name = "send_email", length = 100, nullable = true)
+    private String sendEmail;
 
-    // 对应表中的 ParamValue 字段，长度 100，允许为空
-    @Column(name = "ParamValue", length = 100, nullable = true)
-    private String paramValue;
+    /**
+     * 邮箱显示名称
+     * 收件人看到的发件人昵称，提升邮件辨识度
+     */
+    @Column(name = "nick_name", length = 100, nullable = true)
+    private String nickName;
 
-    // 获取 ID 的方法
+    /**
+     * SMTP服务器地址
+     * 邮件发送协议服务器地址，如smtp.163.com、smtp.qq.com等
+     */
+    @Column(name = "smtp_server", length = 100, nullable = true)
+    private String smtpServer;
+
+    /**
+     * SMTP服务器端口
+     * 对应邮件服务商的SMTP端口，常见如465(SSL)、587(TLS)
+     */
+    @Column(name = "smtp_port", length = 100, nullable = true)
+    private String smtpPort;
+
+    /**
+     * 邮箱授权码
+     * 第三方登录邮箱的专用密码，替代账号密码用于安全验证
+     */
+    @Column(name = "grant_pode", length = 100, nullable = true)
+    private String grantCode;
+
+    // 以下为属性访问方法，遵循JavaBean规范
     public Integer getId() {
         return id;
     }
 
-    // 设置 ID 的方法
     public void setId(Integer id) {
         this.id = id;
     }
 
-    // 获取 ParamName 的方法
-    public String getParamName() {
-        return paramName;
+    public String getSendEmail() {
+        return sendEmail;
     }
 
-    // 设置 ParamName 的方法
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
+    public void setSendEmail(String sendEmail) {
+        this.sendEmail = sendEmail;
     }
 
-    // 获取 ParamValue 的方法
-    public String getParamValue() {
-        return paramValue;
+    public String getNickName() {
+        return nickName;
     }
 
-    // 设置 ParamValue 的方法
-    public void setParamValue(String paramValue) {
-        this.paramValue = paramValue;
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getSmtpServer() {
+        return smtpServer;
+    }
+
+    public void setSmtpServer(String smtpServer) {
+        this.smtpServer = smtpServer;
+    }
+
+    public String getSmtpPort() {
+        return smtpPort;
+    }
+
+    public void setSmtpPort(String smtpPort) {
+        this.smtpPort = smtpPort;
+    }
+
+    public String getGrantCode() {
+        return grantCode;
+    }
+
+    public void setGrantCode(String grantCode) {
+        this.grantCode = grantCode;
     }
 }
