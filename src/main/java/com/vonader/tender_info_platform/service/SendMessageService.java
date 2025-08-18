@@ -2,37 +2,35 @@ package com.vonader.tender_info_platform.service;
 
 import com.vonader.tender_info_platform.domain.Contact;
 import com.vonader.tender_info_platform.domain.Config;
-import com.vonader.tender_info_platform.repository.SendMessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
-@Service
-public class SendMessageService {
+/**
+ * 消息发送服务接口，定义消息发送相关的业务方法
+ */
+public interface SendMessageService {
 
-    private final SendMessageRepository sendMessageRepository;
+    /**
+     * 查询系统邮箱配置信息
+     * @return 配置信息列表
+     */
+    List<Config> getConfig();
 
-    @Autowired
-    public SendMessageService(final SendMessageRepository sendMessageRepository) {
-        this.sendMessageRepository = sendMessageRepository;
-    }
+    /**
+     * 更新系统配置信息
+     * @param config 包含更新信息的配置对象
+     * @return 更新后的配置信息
+     */
+    Config updateConfig(Config config);
 
-    // 查询发送邮箱配置
-    public List<Config> getConfig() {
-        // 调用Repository层的分页查询发送邮箱配置
-        return sendMessageRepository.findConfig();
-    }
-
-    // 分页查询联系人邮箱列表
-    public Page<Contact> getAllContacts(Pageable pageable) {
-        if (pageable == null) {
-            throw new IllegalArgumentException("分页参数不能为空");
-        }
-        // 调用Repository层的分页查询方法
-        return sendMessageRepository.findAllContacts(pageable);
-    }
-
+    //========== 联系人邮箱处理 ==========
+    /**
+     * 分页查询联系人列表
+     * @param pageable 分页参数对象
+     * @return 分页形式的联系人数据
+     * @throws IllegalArgumentException 当分页参数为空时抛出
+     */
+    Page<Contact> getAllContacts(Pageable pageable);
 }

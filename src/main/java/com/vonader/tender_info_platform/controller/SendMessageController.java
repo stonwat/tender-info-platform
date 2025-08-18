@@ -44,6 +44,17 @@ public class SendMessageController {
     }
 
     /**
+     * 更新系统配置信息
+     * @param config 包含更新信息的配置对象
+     * @return 更新后的配置信息
+     */
+    @PutMapping("/config")
+    public Config updateConfig(@RequestBody Config config) {
+        // 调用服务层方法更新配置信息并返回更新结果
+        return sendMessageService.updateConfig(config);
+    }
+
+    /**
      * 分页查询联系人列表
      * @param page 页码，从0开始，默认值为0
      * @param size 每页记录数，默认值为10

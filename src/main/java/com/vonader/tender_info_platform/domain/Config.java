@@ -52,7 +52,7 @@ public class Config {
      * 邮箱授权码
      * 第三方登录邮箱的专用密码，替代账号密码用于安全验证
      */
-    @Column(name = "grant_pode", length = 100, nullable = true)
+    @Column(name = "grant_code", length = 100, nullable = true)
     private String grantCode;
 
     // 以下为属性访问方法，遵循JavaBean规范
