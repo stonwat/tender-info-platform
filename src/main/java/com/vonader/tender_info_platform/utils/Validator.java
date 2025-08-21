@@ -13,7 +13,7 @@ public class Validator {
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
     /**
-     * 预编译正则表达式，提升性能
+     * 预编译正则表达式，提升性能-m
      */
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
