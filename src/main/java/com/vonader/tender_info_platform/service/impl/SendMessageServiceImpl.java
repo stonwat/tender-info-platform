@@ -6,6 +6,7 @@ import com.vonader.tender_info_platform.domain.Contact;
 import com.vonader.tender_info_platform.exception.BusinessException;
 import com.vonader.tender_info_platform.repository.SendMessageRepository;
 import com.vonader.tender_info_platform.service.SendMessageService;
+import com.vonader.tender_info_platform.utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -84,6 +85,10 @@ public class SendMessageServiceImpl implements SendMessageService {
             throw new BusinessException(ErrorCode.CONFLICT_ERROR.getCode(), "邮箱已存在：" + email);
         }
 
+        // 验证邮箱格式规范性
+        if(!Validator.isValidEmail(email)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "邮箱格式不正确");
+        }
         // 执行插入操作
         sendMessageRepository.saveContact(contact);
 
