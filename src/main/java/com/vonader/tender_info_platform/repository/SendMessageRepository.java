@@ -6,9 +6,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +45,7 @@ public interface SendMessageRepository extends JpaRepository<Contact, Long> {
     boolean existsConfigById(Integer id);
     
     /**
-     * 保存（更新）配置信息
+     * 保存配置信息
      * 当配置ID存在时执行更新操作，不存在时执行新增（实际业务中配置通常为单条记录，此处主要用于更新）
      * @param config 包含更新信息的配置对象
      * @return 更新后的配置对象，包含数据库自动生成的字段（如更新时间等）
@@ -65,4 +70,89 @@ public interface SendMessageRepository extends JpaRepository<Contact, Long> {
      */
     @Query("SELECT c FROM Contact c")
     Page<Contact> findAllContacts(Pageable pageable);
+
+    /**
+     * 检查邮箱是否已存在
+     * 用于新增联系人时验证邮箱唯一性，避免重复添加
+     * @param email 待检查的邮箱地址
+     * @return 存在返回true，否则返回false
+     */
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Contact c WHERE c.email = :email")
+    boolean existsByEmail(String email);
+
+    /**
+     * 保存新联系人
+     * 插入新的联系人记录到数据库，自动生成userId
+     * @param contact 包含联系人信息的对象（userName、email、remarks）
+     * @return 保存后的联系人对象，包含自动生成的userId
+     */
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO contact (user_name, email, remarks) " +
+            "VALUES (:#{#contact.userName}, :#{#contact.email}, :#{#contact.remarks})",
+            nativeQuery = true)
+    void saveContact(Contact contact);
+
+    /**
+     * 新增后查询刚插入的联系人（用于获取自动生成的userId）
+     * @param email 联系人邮箱（唯一）
+     * @return 包含完整信息的联系人对象
+     */
+    @Query("SELECT c FROM Contact c WHERE c.email = :email")
+    Optional<Contact> findByEmail(String email);
+
+    /**
+     * 检查userId是否存在
+     * @param userId 联系人ID
+     * @return 存在返回true，否则返回false
+     */
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Contact c WHERE c.userId = :userId")
+    boolean existsByUserId(@Param("userId") Integer userId);
+
+    /**
+     * 根据userId查询联系人（用于更新后获取完整记录）
+     * @param userId 联系人ID
+     * @return 联系人对象（Optional包装）
+     */
+    @Query("SELECT c FROM Contact c WHERE c.userId = :userId")
+    Optional<Contact> findByUserId(@Param("userId") Integer userId);
+
+    /**
+     * 根据userId更新联系人信息
+     * @param contact 包含更新信息的对象（userName、email、remarks、userId）
+     */
+    @Modifying
+    @Transactional
+    @Query("UPDATE Contact c SET " +
+            "c.userName = :#{#contact.userName}, " +
+            "c.email = :#{#contact.email}, " +
+            "c.remarks = :#{#contact.remarks} " +
+            "WHERE c.userId = :#{#contact.userId}")
+    void updateContact(@Param("contact") Contact contact);
+
+    /**
+     * 根据userId删除联系人
+     * @param userId 联系人ID
+     */
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Contact c WHERE c.userId = :userId")
+    void deleteByUserId(@Param("userId") Integer userId);
+
+    /**
+     * 批量根据userId删除联系人
+     * @param userIds 联系人ID列表
+     */
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Contact c WHERE c.userId IN :userIds")
+    void deleteByUserIds(@Param("userIds") List<Integer> userIds);
+
+    /**
+     * 查询存在的userId
+     * @param userIds 待查询的userId列表
+     * @return 存在的userId列表
+     */
+    @Query("SELECT c.userId FROM Contact c WHERE c.userId IN :userIds")
+    List<Integer> findExistingUserIds(@Param("userIds") List<Integer> userIds);
 }

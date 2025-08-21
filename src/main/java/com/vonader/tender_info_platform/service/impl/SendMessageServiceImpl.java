@@ -1,7 +1,9 @@
 package com.vonader.tender_info_platform.service.impl;
 
+import com.vonader.tender_info_platform.common.ErrorCode;
 import com.vonader.tender_info_platform.domain.Config;
 import com.vonader.tender_info_platform.domain.Contact;
+import com.vonader.tender_info_platform.exception.BusinessException;
 import com.vonader.tender_info_platform.repository.SendMessageRepository;
 import com.vonader.tender_info_platform.service.SendMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 消息发送服务接口的实现类，实现具体的业务逻辑
@@ -26,61 +30,136 @@ public class SendMessageServiceImpl implements SendMessageService {
     }
 
     //========== 发送邮箱配置 ==========
-    /**
-     * 查询发送邮箱配置信息，调用数据访问层获取配置列表
-     * @return 配置信息列表
-     */
     @Override
     public List<Config> getConfig() {
-        // 调用Repository层方法查询配置信息
         return sendMessageRepository.findConfig();
     }
 
-    /**
-     * 更新发件人邮箱配置信息，先验证配置ID有效性，再执行更新操作
-     * @param config 包含更新信息的配置对象
-     * @return 更新后的配置信息
-     * @throws IllegalArgumentException 当配置ID为空或不存在时抛出
-     */
     @Override
     @Transactional
     public Config updateConfig(Config config) {
         // 验证ID
         if (config.getId() == null) {
-            throw new IllegalArgumentException("配置ID不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "配置ID不能为空");
         }
         // 检查配置是否存在
         boolean exists = sendMessageRepository.existsConfigById(config.getId());
         if (!exists) {
-            throw new IllegalArgumentException("配置信息不存在，ID: " + config.getId());
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "配置信息不存在，ID: " + config.getId());
         }
         // 执行更新，获取影响行数
         int affectedRows = sendMessageRepository.saveConfig(config);
         if (affectedRows == 0) {
-            throw new RuntimeException("更新配置失败，未找到对应记录");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "更新配置失败，未找到对应记录");
         }
-        // 返回更新后的对象（可重新查询一次数据库获取最新数据）
+        // 返回更新后的对象
         List<Config> updatedConfigs = getConfig();
-        // 如果是单条配置，直接返回第一条；如果是多条，筛选当前更新的记录
         return updatedConfigs.stream()
                 .filter(c -> c.getId().equals(config.getId()))
                 .findFirst()
-                .orElse(updatedConfigs.get(0)); // 兼容单配置场景
+                .orElseThrow(() -> new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "更新后查询配置失败"));
     }
 
     //========== 联系人邮箱处理 ==========
-    /**
-     * 分页查询联系人邮箱列表，先验证分页参数有效性，再调用数据访问层查询
-     * @param pageable 分页参数对象
-     * @return 分页形式的联系人数据
-     * @throws IllegalArgumentException 当分页参数为空时抛出
-     */
     @Override
     public Page<Contact> getAllContacts(Pageable pageable) {
         if (pageable == null) {
-            throw new IllegalArgumentException("分页参数不能为空");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "分页参数不能为空");
         }
-        // 调用Repository层的分页查询方法
         return sendMessageRepository.findAllContacts(pageable);
+    }
+
+    @Override
+    @Transactional
+    public Contact addContact(Contact contact) {
+        // 验证邮箱非空
+        String email = contact.getEmail();
+        if (email == null || email.trim().isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "邮箱不能为空");
+        }
+        email = email.trim();
+
+        // 验证邮箱唯一性
+        if (sendMessageRepository.existsByEmail(email)) {
+            throw new BusinessException(ErrorCode.CONFLICT_ERROR.getCode(), "邮箱已存在：" + email);
+        }
+
+        // 执行插入操作
+        sendMessageRepository.saveContact(contact);
+
+        // 查询新增记录
+        return sendMessageRepository.findByEmail(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "新增联系人失败，未找到记录"));
+    }
+
+    @Override
+    @Transactional
+    public Contact updateContactByUserId(Contact contact) {
+        Integer userId = contact.getUserId();
+        // 校验userId是否存在
+        if (!sendMessageRepository.existsByUserId(userId)) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "联系人不存在，userId: " + userId);
+        }
+
+        // 校验邮箱
+        String newEmail = contact.getEmail();
+        if (newEmail == null || newEmail.trim().isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "请填写邮箱");
+        }
+        newEmail = newEmail.trim();
+
+        // 校验邮箱唯一性（排除自身）
+        Optional<Contact> existingContact = sendMessageRepository.findByEmail(newEmail);
+        if (existingContact.isPresent() && !existingContact.get().getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.CONFLICT_ERROR.getCode(), "邮箱已被占用：" + newEmail);
+        }
+
+        // 执行更新
+        sendMessageRepository.updateContact(contact);
+
+        // 返回更新后记录
+        return sendMessageRepository.findByUserId(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "更新联系人失败，未找到记录"));
+    }
+
+    @Override
+    @Transactional
+    public void deleteContactByUserId(Integer userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "用户ID不能为空");
+        }
+        // 校验userId是否存在
+        boolean exists = sendMessageRepository.existsByUserId(userId);
+        if (!exists) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "联系人不存在，userId: " + userId);
+        }
+        // 执行删除
+        sendMessageRepository.deleteByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteContactByUserIds(List<Integer> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "用户ID列表不能为空");
+        }
+
+        // 校验用户ID列表是否存在
+        List<Integer> existingIds = sendMessageRepository.findExistingUserIds(userIds);
+        if (existingIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "所有联系人都不存在");
+        }
+
+        // 如果存在部分不存在的ID，可以选择抛出异常或仅删除存在的
+/*        if (existingIds.size() < userIds.size()) {
+            List<Integer> nonExistingIds = userIds.stream()
+                    .filter(id -> !existingIds.contains(id))
+                    .collect(Collectors.toList());
+            log.warn("部分联系人不存在，将跳过这些ID: {}", nonExistingIds);
+        }*/
+
+        // 这里选择仅删除存在的ID
+        // 执行批量删除
+        sendMessageRepository.deleteByUserIds(userIds);
     }
 }
