@@ -4,7 +4,8 @@ import com.vonader.tender_info_platform.common.ErrorCode;
 import com.vonader.tender_info_platform.domain.Config;
 import com.vonader.tender_info_platform.domain.Contact;
 import com.vonader.tender_info_platform.exception.BusinessException;
-import com.vonader.tender_info_platform.repository.SendMessageRepository;
+import com.vonader.tender_info_platform.repository.ConfigRepository;
+import com.vonader.tender_info_platform.repository.ContactRepository;
 import com.vonader.tender_info_platform.service.SendMessageService;
 import com.vonader.tender_info_platform.utils.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +24,21 @@ import java.util.stream.Collectors;
 @Service
 public class SendMessageServiceImpl implements SendMessageService {
 
-    private final SendMessageRepository sendMessageRepository;
+    private final ConfigRepository configRepository;
+
+    private final ContactRepository contactRepository;
 
     @Autowired
-    public SendMessageServiceImpl(final SendMessageRepository sendMessageRepository) {
-        this.sendMessageRepository = sendMessageRepository;
+    public SendMessageServiceImpl(ConfigRepository configRepository,
+                                  ContactRepository contactRepository) {
+        this.configRepository = configRepository;
+        this.contactRepository = contactRepository;
     }
 
     //========== 发送邮箱配置 ==========
     @Override
     public List<Config> getConfig() {
-        return sendMessageRepository.findConfig();
+        return configRepository.findConfig();
     }
 
     @Override
@@ -44,12 +49,12 @@ public class SendMessageServiceImpl implements SendMessageService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "配置ID不能为空");
         }
         // 检查配置是否存在
-        boolean exists = sendMessageRepository.existsConfigById(config.getId());
+        boolean exists = configRepository.existsConfigById(config.getId());
         if (!exists) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "配置信息不存在，ID: " + config.getId());
         }
         // 执行更新，获取影响行数
-        int affectedRows = sendMessageRepository.saveConfig(config);
+        int affectedRows = configRepository.saveConfig(config);
         if (affectedRows == 0) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "更新配置失败，未找到对应记录");
         }
@@ -67,7 +72,7 @@ public class SendMessageServiceImpl implements SendMessageService {
         if (pageable == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "分页参数不能为空");
         }
-        return sendMessageRepository.findAllContacts(pageable);
+        return contactRepository.findAllContacts(pageable);
     }
 
     @Override
@@ -81,7 +86,7 @@ public class SendMessageServiceImpl implements SendMessageService {
         email = email.trim();
 
         // 验证邮箱唯一性
-        if (sendMessageRepository.existsByEmail(email)) {
+        if (contactRepository.existsByEmail(email)) {
             throw new BusinessException(ErrorCode.CONFLICT_ERROR.getCode(), "邮箱已存在：" + email);
         }
 
@@ -90,10 +95,10 @@ public class SendMessageServiceImpl implements SendMessageService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "邮箱格式不正确");
         }
         // 执行插入操作
-        sendMessageRepository.saveContact(contact);
+        contactRepository.saveContact(contact);
 
         // 查询新增记录
-        return sendMessageRepository.findByEmail(email)
+        return contactRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "新增联系人失败，未找到记录"));
     }
 
@@ -102,7 +107,7 @@ public class SendMessageServiceImpl implements SendMessageService {
     public Contact updateContactByUserId(Contact contact) {
         Integer userId = contact.getUserId();
         // 校验userId是否存在
-        if (!sendMessageRepository.existsByUserId(userId)) {
+        if (!contactRepository.existsByUserId(userId)) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "联系人不存在，userId: " + userId);
         }
 
@@ -114,16 +119,16 @@ public class SendMessageServiceImpl implements SendMessageService {
         newEmail = newEmail.trim();
 
         // 校验邮箱唯一性（排除自身）
-        Optional<Contact> existingContact = sendMessageRepository.findByEmail(newEmail);
+        Optional<Contact> existingContact = contactRepository.findByEmail(newEmail);
         if (existingContact.isPresent() && !existingContact.get().getUserId().equals(userId)) {
             throw new BusinessException(ErrorCode.CONFLICT_ERROR.getCode(), "邮箱已被占用：" + newEmail);
         }
 
         // 执行更新
-        sendMessageRepository.updateContact(contact);
+        contactRepository.updateContact(contact);
 
         // 返回更新后记录
-        return sendMessageRepository.findByUserId(userId)
+        return contactRepository.findByUserId(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "更新联系人失败，未找到记录"));
     }
 
@@ -134,12 +139,12 @@ public class SendMessageServiceImpl implements SendMessageService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR.getCode(), "用户ID不能为空");
         }
         // 校验userId是否存在
-        boolean exists = sendMessageRepository.existsByUserId(userId);
+        boolean exists = contactRepository.existsByUserId(userId);
         if (!exists) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "联系人不存在，userId: " + userId);
         }
         // 执行删除
-        sendMessageRepository.deleteByUserId(userId);
+        contactRepository.deleteByUserId(userId);
     }
 
     @Override
@@ -150,7 +155,7 @@ public class SendMessageServiceImpl implements SendMessageService {
         }
 
         // 校验用户ID列表是否存在
-        List<Integer> existingIds = sendMessageRepository.findExistingUserIds(userIds);
+        List<Integer> existingIds = contactRepository.findExistingUserIds(userIds);
         if (existingIds.isEmpty()) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR.getCode(), "所有联系人都不存在");
         }
@@ -165,6 +170,6 @@ public class SendMessageServiceImpl implements SendMessageService {
 
         // 这里选择仅删除存在的ID
         // 执行批量删除
-        sendMessageRepository.deleteByUserIds(userIds);
+        contactRepository.deleteByUserIds(userIds);
     }
 }

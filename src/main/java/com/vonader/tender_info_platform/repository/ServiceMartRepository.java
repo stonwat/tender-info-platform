@@ -1,6 +1,5 @@
 package com.vonader.tender_info_platform.repository;
 
-import com.vonader.tender_info_platform.domain.ProjectPurchase;
 import com.vonader.tender_info_platform.domain.ServiceMart;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,20 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 @Repository
-public interface TenderRepository extends JpaRepository<ProjectPurchase, Long> {
-
-    @Query("SELECT t FROM ProjectPurchase t WHERE " +
-            "(:region IS NULL OR t.region = :region) AND " +
-            "(:keyword IS NULL OR t.title LIKE %:keyword%) AND "+
-            "(:date IS NULL OR t.date = :date)")
-    Page<ProjectPurchase> findFilteredProjectPurchase(
-            @Param("region") String region,
-            @Param("keyword") String keyword,
-            @Param("date") String date,
-            Pageable pageable);
-
-    Optional<ProjectPurchase> findProjectPurchaseDetailByUrl(String url);
-
+public interface ServiceMartRepository extends JpaRepository<ServiceMart, Long> {
     @Query("SELECT s FROM ServiceMart s WHERE " +
             "(:region IS NULL OR s.region = :region) AND " +
             "(:keyword IS NULL OR s.title LIKE %:keyword%) AND " +
@@ -38,5 +24,6 @@ public interface TenderRepository extends JpaRepository<ProjectPurchase, Long> {
             Pageable pageable);
 
     // 按 url 查询详情
+    @Query("SELECT s FROM ServiceMart s WHERE s.url = :url")
     Optional<ServiceMart> findServiceMartDetailByUrl(String url);
 }
