@@ -1,0 +1,86 @@
+/* src/styles/tailwind.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 自定义工具类 */
+@layer utilities {
+  .content-auto {
+    content-visibility: auto;
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-md;
+  }
+  .fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  .skeleton-loading {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+  }
+  .scroll-indicator {
+    height: 4px;
+    background: linear-gradient(to right, #165DFF, #4080FF);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: width 0.2s ease;
+  }
+  .error-toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #F53F3F;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    z-index: 1000;
+    animation: fadeIn 0.3s, fadeOut 0.3s 3s forwards;
+  }
+  .status-badge {
+    @apply px-1.5 py-0.5 text-xs rounded;
+  }
+  .status-bidding {
+    @apply bg-green-100 text-green-800;
+  }
+  .status-closed {
+    @apply bg-red-100 text-red-800;
+  }
+  .status-won {
+    @apply bg-blue-100 text-blue-800;
+  }
+  .no-more-data {
+    @apply py-4 text-center text-sm text-neutral;
+  }
+  .date-filter.active {
+    @apply bg-primary text-white;
+  }
+  .skeleton-card {
+    @apply bg-gray-100 rounded-xl p-4;
+  }
+  .skeleton-line {
+    @apply h-4 bg-gray-200 rounded mb-3;
+  }
+  .serial-number {
+    @apply flex items-center justify-center w-8 h-8 bg-primary/10 text-primary rounded-lg text-base font-medium;
+  }
+}
+
+/* 关键帧动画 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

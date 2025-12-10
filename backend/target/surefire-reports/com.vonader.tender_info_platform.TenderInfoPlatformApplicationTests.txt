@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.vonader.tender_info_platform.TenderInfoPlatformApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 13.64 s -- in com.vonader.tender_info_platform.TenderInfoPlatformApplicationTests

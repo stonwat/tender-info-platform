@@ -1,0 +1,39 @@
+# MySQL数据库连接配置
+spring:
+  datasource:
+    # 数据库连接URL，指定服务器地址、端口、数据库名和时区
+    url: jdbc:mysql://42.100.36.28:3306/crawler?serverTimezone=UTC
+    # 数据库用户名
+    username: root
+    # 数据库密码
+    password: Q6h!CBwZqu
+    # 数据库驱动配置
+    # MySQL 8.x版本的JDBC驱动类
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # JPA配置
+  jpa:
+    # Hibernate配置
+    hibernate:
+      # Hibernate DDL自动更新策略，update表示根据实体类自动更新数据库表结构
+      ddl-auto: update
+    # SQL日志配置
+    # 显示Hibernate执行的SQL语句
+    show-sql: true
+    properties:
+      hibernate:
+        # 格式化显示的SQL语句，提高可读性
+        format_sql: true
+        # 数据库方言配置
+        # 指定Hibernate使用MySQL 8.x的方言
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  # MVC日期格式配置
+  # 设置Spring MVC的日期格式，用于JSON序列化和反序列化
+  mvc:
+    format:
+      date: yyyy-MM-dd
+
+server:
+  port: 8088
+  
