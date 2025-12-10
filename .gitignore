@@ -1,5 +1,14 @@
-########## Java / Maven ##########
+######################################################################
+# Build Tools
+######################################################################
+# Gradle
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Maven
 target/
+!mvn/wrapper/maven-wrapper.jar
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -13,49 +22,84 @@ buildNumber.properties
 *.war
 *.ear
 
-########## IDE - IntelliJ IDEA ##########
+######################################################################
+# IDE
+######################################################################
+# IntelliJ IDEA
 .idea/
 *.iws
 *.iml
 *.ipr
 out/
 
-########## IDE - Eclipse ##########
+# Eclipse
+.apt_generated
 .classpath
+.factorypath
 .project
-.settings/
+.settings
 bin/
+.springBeans
 
-########## IDE - VS Code ##########
+# VS Code
 .vscode/
 
-########## OS 垃圾 ##########
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# JRebel
+rebel.xml
+
+# STS
+.apt_generated
+.springBeans
+
+######################################################################
+# OS & 临时文件
+######################################################################
 .DS_Store
 Thumbs.db
 desktop.ini
-
-########## 日志 & 临时文件 ##########
-logs/
 *.log
+logs/
 *.tmp
 *.temp
 *.swp
 *~
 
-########## 本地配置 ##########
+######################################################################
+# 本地配置 & 敏感文件
+######################################################################
 application-local.yml
 application-local.properties
 .env
 *.env.local
 
-########## Node（若前后端同仓） ##########
+######################################################################
+# Node（前后端同仓时）
+######################################################################
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 dist/
 
-########## 其他运行时 ##########
+######################################################################
+# 其他运行时
+######################################################################
 *.pid
 *.seed
 *.pid.lock
+
+######################################################################
+# 项目特定
+######################################################################
+!*/build/*.java
+!*/build/*.html
+!*/build/*.xml
+doc/~$环境使用手册.docx
+ruoyi-ui/dist.zip
